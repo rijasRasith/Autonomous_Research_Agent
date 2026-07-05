@@ -1,22 +1,21 @@
-"""
-Centralized configuration — all env vars are loaded once here.
-
-Every other module should import `settings` from this file rather than
-reading os.environ directly. Pydantic handles type validation automatically.
-"""
+# Yeh file saari app ki settings ek jagah se load karti hai — .env file padhti hai aur har jagah use hoti hai.
 
 from functools import lru_cache
+from pathlib import Path
 from typing import Literal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+# Project root = two levels up from this file (backend/utils/config.py -> backend/ -> project root)
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=str(_PROJECT_ROOT / ".env"),
         env_file_encoding="utf-8",
         case_sensitive=False,
-        extra="ignore",        # silently ignore unrecognised env vars
+        extra="ignore",
     )
 
     app_name: str = "Autonomous Research Agent"
@@ -34,23 +33,30 @@ class Settings(BaseSettings):
     tavily_api_key: str = ""
     max_search_results: int = 5
 
-    database_url: str = "sqlite:///./research_memory.db"
-
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
     log_format: str = "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s"
 
-    # How many search → reflect cycles the agent is allowed before it must wrap up
     max_reflection_iterations: int = 3
-    max_tool_timeout_seconds: int = 30
+    max_tool_timeout_seconds: int = 120
 
-    reports_dir: str = "reports"
+    @property
+    def database_url(self) -> str:
+        """Always returns an absolute path so the DB is found regardless of CWD."""
+        db_path = _PROJECT_ROOT / "research_memory.db"
+        return f"sqlite:///{db_path.as_posix()}"
+
+    @property
+    def reports_dir(self) -> str:
+        """Always returns an absolute path so reports are saved to the project root."""
+        reports_path = _PROJECT_ROOT / "reports"
+        reports_path.mkdir(parents=True, exist_ok=True)
+        return str(reports_path)
 
 
-# lru_cache ensures Settings() is only instantiated once across the whole app —
-# no redundant .env parsing on every import.
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
     return Settings()
 
 
 settings: Settings = get_settings()
+

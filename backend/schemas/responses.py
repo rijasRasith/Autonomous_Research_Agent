@@ -1,7 +1,4 @@
-"""
-Pydantic response schemas shared across all API endpoints.
-FastAPI uses these to validate outgoing data and auto-generate the OpenAPI docs.
-"""
+# Yeh file health check aur error ke liye common response shapes banati hai jo API mein use hoti hain.
 
 from datetime import datetime
 from typing import Any
@@ -10,8 +7,6 @@ from pydantic import BaseModel, Field
 
 
 class HealthResponse(BaseModel):
-    """Response model for GET /health."""
-
     status: str = Field(default="healthy", description="Service health status")
     app_name: str = Field(..., description="Application name")
     version: str = Field(..., description="Application version")
@@ -31,18 +26,12 @@ class HealthResponse(BaseModel):
 
 
 class RootResponse(BaseModel):
-    """Response model for GET /."""
-
     message: str
     docs: str
     version: str
 
 
 class ErrorResponse(BaseModel):
-    """Standard error envelope returned on 4xx / 5xx responses."""
-
     error: str
-    # `detail` is Any because different errors carry different payloads —
-    # a validation error may give a list of field issues, a 500 may give None.
     detail: Any = None
     timestamp: datetime = Field(default_factory=datetime.utcnow)
