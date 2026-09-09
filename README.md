@@ -1,6 +1,6 @@
 # Autonomous Research Agent
 
-> **Built for Xiarch Bharat Pvt Ltd — Technical Assessment**  
+
 > *A production-grade autonomous research system powered by Google Gemini, LangGraph, and FastAPI.*
 
 ---
@@ -451,7 +451,7 @@ I built this system from scratch during this assessment period. I'm happy to wal
 
 ---
 
-*Rijasrasith — Autonomous Research Agent Assessment, Xiarch Bharat Pvt Ltd*
+*Rijasrasith — Autonomous Research Agent*
 
 ---
 
